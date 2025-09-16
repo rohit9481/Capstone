@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dual Script Trigger</title>
+ <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h2 {
+      font-size: 3rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-shadow: 0 3px 11px rgba(0, 0, 0, 0.4);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1000px;
+      width: 50%;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 40px 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-size: 1.3rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      text-decoration: none;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, #ff6a00, #ee0979);
+    }
+
+    .avatar-container {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: url('https://i.ibb.co/2N7RmJX/avatar.png') center/cover no-repeat;
+      border: 4px solid #fff;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .avatar:hover {
+      transform: scale(1.1);
+    }
+
+    .talk-btn {
+      margin-top: 15px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #ff6a00, #ee0979);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .talk-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+     .btn-container {
+      display: flex;
+      gap: 30px;
+    }
+
+    .btn {
+      padding: 15px 40px;
+      border: none;
+      border-radius: 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    }
+
+    .btn1 {
+      background: linear-gradient(90deg, #ff6a00, #ee0979);
+    }
+
+    .btn2 {
+      background: linear-gradient(90deg, #36d1dc, #5b86e5);
+    }
+  </style>
+</head>
+<body>
+  <h1>Choose an Avatar For!!!</h1>
+  <div class="btn-container">
+    <button class="btn btn1" onclick="runScript1()">chat</button>
+    <button class="btn btn2" onclick="runScript2()">Study</button>
+  </div>
+  <div class="grid">
+    <a class="card" href="https://www.geeksforgeeks.org/operating-systems/" target="_blank">Operating Systems</a>
+    <a class="card" href="https://www.geeksforgeeks.org/computer-network-tutorials/" target="_blank">Computer Networks</a>
+    <a class="card" href="https://www.geeksforgeeks.org/dbms/" target="_blank">Database Management Systems</a>
+    <a class="card" href="https://www.geeksforgeeks.org/software-engineering/" target="_blank">Software Engineering</a>
+    <a class="card" href="https://www.geeksforgeeks.org/java/" target="_blank">Java</a>
+    <a class="card" href="https://www.geeksforgeeks.org/artificial-intelligence-an-introduction/" target="_blank">Artificial Intelligence</a>
+  </div>
+
+  <script>
+    function runScript1() {
+      alert("Script 1 is running...");
+      !function(window){const host="https://labs.heygen.com",url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJSaWthX0JsYWNrX1N1aXRfcHVibGljIiwi%0D%0AcHJldmlld0ltZyI6Imh0dHBzOi8vZmlsZXMyLmhleWdlbi5haS9hdmF0YXIvdjMvNjE3MGYzMTMy%0D%0AN2UyNDY1MDk1ZjAxMjFjNjVhN2NiMWJfNTU0MzAvcHJldmlld190YXJnZXQud2VicCIsIm5lZWRS%0D%0AZW1vdmVCYWNrZ3JvdW5kIjp0cnVlLCJrbm93bGVkZ2VCYXNlSWQiOiJiYWYwYjg5NTc1YTU0ZDM0%0D%0AYWZiODQ4ZWJmNmJjNWUyMiIsInVzZXJuYW1lIjoiZTk4MGZkNWIwOWVlNGQ5OTg3OTllNjU3M2Ji%0D%0AM2FjMTkifQ%3D%3D&inIFrame=1",clientWidth=document.body.clientWidth,wrapDiv=document.createElement("div");wrapDiv.id="heygen-streaming-embed";const container=document.createElement("div");container.id="heygen-streaming-container";const stylesheet=document.createElement("style");stylesheet.innerHTML="\n #heygen-streaming-embed {\n z-index: 9999;\n position: fixed;\n left: 40px;\n bottom: 40px;\n width: 200px;\n height: 200px;\n border-radius: 50%;\n border: 2px solid #fff;\n box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);\n transition: all linear 0.1s;\n overflow: hidden;\n\n opacity: 0;\n visibility: hidden;\n }\n #heygen-streaming-embed.show {\n opacity: 1;\n visibility: visible;\n }\n #heygen-streaming-embed.expand {\n "+(clientWidth<540?"height: 266px; width: 96%; left: 50%; transform: translateX(-50%);":"height: 366px; width: calc(366px * 16 / 9);")+"\n border: 0;\n border-radius: 8px;\n }\n #heygen-streaming-container {\n width: 100%;\n height: 100%;\n }\n #heygen-streaming-container iframe {\n width: 100%;\n height: 100%;\n border: 0;\n }\n ";const iframe=document.createElement("iframe");iframe.allowFullscreen=!1,iframe.title="Streaming Embed",iframe.role="dialog",iframe.allow="microphone",iframe.src=url;let visible=!1,initial=!1;window.addEventListener("message",(e=>{e.origin===host&&e.data&&e.data.type&&"streaming-embed"===e.data.type&&("init"===e.data.action?(initial=!0,wrapDiv.classList.toggle("show",initial)):"show"===e.data.action?(visible=!0,wrapDiv.classList.toggle("expand",visible)):"hide"===e.data.action&&(visible=!1,wrapDiv.classList.toggle("expand",visible)))})),container.appendChild(iframe),wrapDiv.appendChild(stylesheet),wrapDiv.appendChild(container),document.body.appendChild(wrapDiv)}(globalThis);
+    }
+
+    function runScript2() {
+      alert("Script 2 is running...");
+      !function(window){const host="https://labs.heygen.com",url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJTaGF3bl9UaGVyYXBpc3RfcHVibGljIiwi%0D%0AcHJldmlld0ltZyI6Imh0dHBzOi8vZmlsZXMyLmhleWdlbi5haS9hdmF0YXIvdjMvZGIyZmI3ZmQw%0D%0AZDA0NGI5MDgzOTVhMDExMTY2YWIyMmRfNDU2ODAvcHJldmlld190YXJnZXQud2VicCIsIm5lZWRS%0D%0AZW1vdmVCYWNrZ3JvdW5kIjpmYWxzZSwia25vd2xlZGdlQmFzZUlkIjoiMWM5YTY5YWJjYzM1NGE2%0D%0AYzhiM2ZlMmM1ZDU3MGRjMzIiLCJ1c2VybmFtZSI6ImU5ODBmZDViMDllZTRkOTk4Nzk5ZTY1NzNi%0D%0AYjNhYzE5In0%3D&inIFrame=1",clientWidth=document.body.clientWidth,wrapDiv=document.createElement("div");wrapDiv.id="heygen-streaming-embed";const container=document.createElement("div");container.id="heygen-streaming-container";const stylesheet=document.createElement("style");stylesheet.innerHTML="\n  #heygen-streaming-embed {\n    z-index: 9999;\n    position: fixed;\n    left: 40px;\n    bottom: 40px;\n    width: 200px;\n    height: 200px;\n    border-radius: 50%;\n    border: 2px solid #fff;\n    box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);\n    transition: all linear 0.1s;\n    overflow: hidden;\n\n    opacity: 0;\n    visibility: hidden;\n  }\n  #heygen-streaming-embed.show {\n    opacity: 1;\n    visibility: visible;\n  }\n  #heygen-streaming-embed.expand {\n    "+(clientWidth<540?"height: 266px; width: 96%; left: 50%; transform: translateX(-50%);":"height: 366px; width: calc(366px * 16 / 9);")+"\n    border: 0;\n    border-radius: 8px;\n  }\n  #heygen-streaming-container {\n    width: 100%;\n    height: 100%;\n  }\n  #heygen-streaming-container iframe {\n    width: 100%;\n    height: 100%;\n    border: 0;\n  }\n  ";const iframe=document.createElement("iframe");iframe.allowFullscreen=!1,iframe.title="Streaming Embed",iframe.role="dialog",iframe.allow="microphone",iframe.src=url;let visible=!1,initial=!1;window.addEventListener("message",(e=>{e.origin===host&&e.data&&e.data.type&&"streaming-embed"===e.data.type&&("init"===e.data.action?(initial=!0,wrapDiv.classList.toggle("show",initial)):"show"===e.data.action?(visible=!0,wrapDiv.classList.toggle("expand",visible)):"hide"===e.data.action&&(visible=!1,wrapDiv.classList.toggle("expand",visible)))})),container.appendChild(iframe),wrapDiv.appendChild(stylesheet),wrapDiv.appendChild(container),document.body.appendChild(wrapDiv)}(globalThis);
+    }
+  </script>
+</body>
+</html>
