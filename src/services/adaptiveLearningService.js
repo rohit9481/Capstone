@@ -2,11 +2,14 @@
 import { generateJson } from "./aiClient"; // Corrected named import
 
 class AdaptiveLearningService {
+  // ----------------------------
+  // Generate personalized explanation
+  // ----------------------------
   async generatePersonalizedExplanation(concept, userContext = {}) {
     try {
       const { mistakePatterns = [], learningStyle = "visual", currentMasteryLevel = 0, previousAttempts = 0, preferredComplexity = "intermediate" } = userContext;
 
-      const promptContent = `Create a personalized explanation for this concept:
+      const promptContent = `Create a personalized explanation for this concept. Ensure each section is distinct and serves its purpose.
 
 Concept: ${concept?.name}
 Description: ${concept?.description}
@@ -15,7 +18,17 @@ Previous Attempts: ${previousAttempts}
 Learning Style: ${learningStyle}
 Preferred Complexity: ${preferredComplexity}
 Common Mistakes: ${mistakePatterns?.join(", ") || "None identified"}
-Key Principles: ${concept?.keyPrinciples?.join(", ") || "N/A"}`;
+Key Principles / Formulas: ${concept?.keyPrinciples?.join(", ") || "N/A"}
+
+Instructions:
+1. Overview: Provide a concise, high-level summary in 1–3 sentences.
+2. Detailed Explanation: Provide a thorough, step-by-step explanation with reasoning and context. Include illustrative examples where necessary.
+3. Key Points: Bullet important takeaways.
+4. Examples: Give separate, concrete examples to reinforce understanding.
+5. Formulas: List any relevant formulas with clear explanations.
+6. Practice Exercises, Common Pitfalls, Real-world Applications, Next Steps: Include if relevant.
+
+Output JSON must match the schema exactly.`;
 
       const explanationResult = await generateJson({
         systemPrompt: `You are an adaptive learning AI tutor. Create personalized explanations that address specific knowledge gaps and learning preferences.`,
@@ -49,6 +62,7 @@ Key Principles: ${concept?.keyPrinciples?.join(", ") || "N/A"}`;
               nextSteps: { type: "array", items: { type: "string" } },
               estimatedStudyTime: { type: "string" },
               difficultyAdjustment: { type: "string" },
+              formulas: { type: "array", items: { type: "string" } }, // Added formulas explicitly
             },
             required: ["overview", "detailedExplanation", "keyPoints", "examples"],
             additionalProperties: false,
@@ -73,6 +87,9 @@ Key Principles: ${concept?.keyPrinciples?.join(", ") || "N/A"}`;
     }
   }
 
+  // ----------------------------
+  // Create audio script from explanation
+  // ----------------------------
   async createAudioScript(explanation, voiceSettings = {}) {
     try {
       const { pace = "normal", tone = "encouraging", includeExamples = true, maxDuration = "5 minutes" } = voiceSettings;
@@ -82,6 +99,7 @@ Key Principles: ${concept?.keyPrinciples?.join(", ") || "N/A"}`;
 Content Overview: ${explanation?.overview}
 Key Points: ${explanation?.keyPoints?.join(", ")}
 Examples: ${explanation?.examples?.map((ex) => ex?.title)?.join(", ")}
+Formulas: ${explanation?.formulas?.join(", ")}
 
 Voice Settings:
 - Pace: ${pace}
@@ -133,6 +151,9 @@ Voice Settings:
     }
   }
 
+  // ----------------------------
+  // Analyze learning patterns
+  // ----------------------------
   async analyzeLearningPatterns(learningData) {
     try {
       const { questionResponses = [], studyTimes = [], conceptMastery = {}, preferredQuestionTypes = {}, mistakePatterns = [] } = learningData;
@@ -200,11 +221,13 @@ Common Mistakes: ${mistakePatterns?.join(", ") || "N/A"}`;
     }
   }
 
+  // ----------------------------
+  // Generate adaptive hints
+  // ----------------------------
   async generateAdaptiveHints(question, userContext = {}) {
     try {
       const { attemptCount = 0, timeSpent = 0, previousHints = [], masteryLevel = 0 } = userContext;
 
-      // Handle unanswered questions separately
       if (question?.status === "unanswered") {
         return {
           hints: [
@@ -289,6 +312,9 @@ User's Mastery Level: ${masteryLevel}%`;
     }
   }
 
+  // ----------------------------
+  // Create personalized study plan
+  // ----------------------------
   async createPersonalizedStudyPlan(userProfile, availableConcepts) {
     try {
       const { learningGoals = [], availableTime = "1 hour", preferredPace = "moderate", currentLevel = "beginner", weakAreas = [], strongAreas = [] } = userProfile;
@@ -354,10 +380,8 @@ Available Concepts: ${availableConcepts?.map((c) => c?.name)?.join(", ")}`;
 
   calculateCompletionTime(dailySessions) {
     if (!dailySessions?.length) return "0 days";
-
     const totalDays = dailySessions?.length;
     const weeks = Math.ceil(totalDays / 7);
-
     if (weeks === 1) return `${totalDays} days`;
     return `${weeks} weeks`;
   }

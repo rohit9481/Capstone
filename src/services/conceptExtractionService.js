@@ -1,127 +1,107 @@
+import { generateJson } from "./aiClient";
+import { v4 as uuidv4 } from "uuid";
+
 class ConceptExtractionService {
-  extractConcepts(analysisData) {
+  // Extract concepts from file analysis using AI
+  async extractConcepts(analysisData) {
     if (!analysisData) return [];
 
-    const concepts = (analysisData.keyConcepts || []).map((key, index) => ({
-      id: `concept_${index + 1}`,
-      name: key,
-      description: `Detailed explanation of ${key}. Refer to topic: ${analysisData.topic}.`,
-      difficulty: this.estimateDifficulty(key, analysisData.difficulty),
-      prerequisites: this.findPrerequisites(key, analysisData.prerequisites),
-      subConcepts: this.generateSubConcepts(key),
-      examples: this.generateExamples(key),
-      misconceptions: this.generateCommonMisconceptions(key),
-      keyPrinciples: this.generateKeyPrinciples(key),
-      estimatedTime: this.estimateTime(key),
-      bloomsLevel: this.estimateBloomsLevel(key),
-      extractedAt: new Date().toISOString(),
-      sourceSubject: analysisData.subject,
-      sourceTopic: analysisData.topic,
-      masteryLevel: 0,
-      attempts: 0,
-      correctAnswers: 0,
-    }));
+    const contentText = analysisData.text || analysisData.summary || "N/A";
 
-    return concepts;
+    const prompt = `
+      Extract key learning concepts from the following content:
+      "${contentText}"
+
+      Return a JSON array of concepts with these fields:
+      - id
+      - name
+      - description
+      - difficulty (Beginner, Intermediate, Advanced)
+      - prerequisites (array of strings)
+      - subConcepts (array of strings)
+      - examples (array of strings)
+      - misconceptions (array of strings)
+      - keyPrinciples (array of strings)
+      - estimatedTime (string, e.g., "10 min")
+      - bloomsLevel (Remember, Understand, Apply)
+      - masteryLevel (default 0)
+      - attempts (default 0)
+      - correctAnswers (default 0)
+    `;
+
+    try {
+      const aiResponse = await generateJson({
+        systemPrompt: "You are an expert educational content extractor.",
+        prompt,
+        json_schema: {
+          name: "ai_concept_extraction",
+          schema: {
+            type: "object",
+            properties: {
+              concepts: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    name: { type: "string" },
+                    description: { type: "string" },
+                    difficulty: { type: "string" },
+                    prerequisites: { type: "array", items: { type: "string" } },
+                    subConcepts: { type: "array", items: { type: "string" } },
+                    examples: { type: "array", items: { type: "string" } },
+                    misconceptions: { type: "array", items: { type: "string" } },
+                    keyPrinciples: { type: "array", items: { type: "string" } },
+                    estimatedTime: { type: "string" },
+                    bloomsLevel: { type: "string" },
+                    masteryLevel: { type: "number" },
+                    attempts: { type: "number" },
+                    correctAnswers: { type: "number" },
+                  },
+                  required: ["id", "name", "description", "difficulty", "prerequisites", "subConcepts", "examples", "misconceptions", "keyPrinciples", "estimatedTime", "bloomsLevel", "masteryLevel", "attempts", "correctAnswers"],
+                },
+              },
+            },
+            required: ["concepts"],
+            additionalProperties: false,
+          },
+        },
+      });
+
+      const rawConcepts = aiResponse?.concepts;
+      const conceptsArray = Array.isArray(rawConcepts) ? rawConcepts : [];
+
+      // Map each concept with defaults to ensure UI never breaks
+      const concepts = conceptsArray.map((c) => ({
+        id: c.id || uuidv4(),
+        name: c.name || "Unnamed Concept",
+        description: c.description || "",
+        difficulty: c.difficulty || "Intermediate",
+        prerequisites: Array.isArray(c.prerequisites) ? c.prerequisites : [],
+        subConcepts: Array.isArray(c.subConcepts) ? c.subConcepts : [],
+        examples: Array.isArray(c.examples) ? c.examples : [],
+        misconceptions: Array.isArray(c.misconceptions) ? c.misconceptions : [],
+        keyPrinciples: Array.isArray(c.keyPrinciples) ? c.keyPrinciples : [],
+        estimatedTime: c.estimatedTime || "10 min",
+        bloomsLevel: c.bloomsLevel || "Remember",
+        masteryLevel: typeof c.masteryLevel === "number" ? c.masteryLevel : 0,
+        attempts: typeof c.attempts === "number" ? c.attempts : 0,
+        correctAnswers: typeof c.correctAnswers === "number" ? c.correctAnswers : 0,
+      }));
+
+      return concepts;
+    } catch (err) {
+      console.error("AI concept extraction failed:", err);
+      return [];
+    }
   }
 
+  // Keep existing pathway creation so UI works
   createLearningPathway(concepts) {
-    if (!concepts?.length) return { pathway: [], totalEstimatedTime: "0 min" };
-
-    const sortedConcepts = this.sortConceptsByDependency(concepts);
-    const totalMinutes = sortedConcepts.reduce((total, c) => total + this.parseTimeToMinutes(c.estimatedTime), 0);
-
-    return {
-      pathway: sortedConcepts.map((c, index) => ({
-        ...c,
-        order: index + 1,
-        isUnlocked: index === 0,
-        dependencies: this.findDependencies(c, sortedConcepts),
-      })),
-      totalEstimatedTime: this.formatMinutesToTime(totalMinutes),
-      totalConcepts: sortedConcepts.length,
-      difficultyDistribution: this.calculateDifficultyDistribution(sortedConcepts),
-    };
-  }
-
-  sortConceptsByDependency(concepts) {
-    const difficultyOrder = { Beginner: 1, Intermediate: 2, Advanced: 3 };
-    return [...concepts].sort((a, b) => {
-      const diffA = difficultyOrder[a.difficulty] || 2;
-      const diffB = difficultyOrder[b.difficulty] || 2;
-      if (diffA !== diffB) return diffA - diffB;
-      return (a.prerequisites?.length || 0) - (b.prerequisites?.length || 0);
-    });
-  }
-
-  findDependencies(concept, allConcepts) {
-    if (!concept?.prerequisites?.length) return [];
-    return allConcepts.filter((other) => other.id !== concept.id && concept.prerequisites.some((p) => other.name.toLowerCase().includes(p.toLowerCase()) || other.subConcepts?.some((sub) => sub.toLowerCase().includes(p.toLowerCase())))).map((dep) => dep.id);
-  }
-
-  calculateDifficultyDistribution(concepts) {
-    const dist = { Beginner: 0, Intermediate: 0, Advanced: 0 };
-    concepts.forEach((c) => {
-      if (dist.hasOwnProperty(c.difficulty)) dist[c.difficulty]++;
-    });
-    return dist;
-  }
-
-  parseTimeToMinutes(timeStr) {
-    if (!timeStr) return 15;
-    const match = timeStr.match(/(\d+)\s*(min|hour|hr)/i);
-    if (!match) return 15;
-    const value = parseInt(match[1]);
-    const unit = match[2].toLowerCase();
-    return unit.includes("hour") || unit.includes("hr") ? value * 60 : value;
-  }
-
-  formatMinutesToTime(minutes) {
-    if (minutes < 60) return `${minutes} min`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins === 0 ? `${hours} hour${hours > 1 ? "s" : ""}` : `${hours}h ${mins}min`;
-  }
-
-  // -------------------------
-  // Heuristic generators
-  // -------------------------
-  estimateDifficulty(name, defaultDifficulty = "Intermediate") {
-    if (/intro|basics|fundamentals/i.test(name)) return "Beginner";
-    if (/advanced|complex/i.test(name)) return "Advanced";
-    return defaultDifficulty;
-  }
-
-  findPrerequisites(name, allPrereqs = []) {
-    return allPrereqs.filter((p) => name.toLowerCase().includes(p.toLowerCase()));
-  }
-
-  generateSubConcepts(name) {
-    return name.split(" ").slice(0, 2);
-  }
-
-  generateExamples(name) {
-    return [`Example of ${name} in real-world context.`];
-  }
-
-  generateCommonMisconceptions(name) {
-    return [`Common misconception about ${name}.`];
-  }
-
-  generateKeyPrinciples(name) {
-    return [`Key principle related to ${name}.`];
-  }
-
-  estimateTime(name) {
-    if (/advanced/i.test(name)) return "20 min";
-    if (/intermediate/i.test(name)) return "15 min";
-    return "10 min";
-  }
-
-  estimateBloomsLevel(name) {
-    if (/understand|know/i.test(name)) return "Understand";
-    if (/apply|use/i.test(name)) return "Apply";
-    return "Remember";
+    return concepts.map((c, idx) => ({
+      ...c,
+      sequence: idx + 1,
+    }));
   }
 }
 

@@ -70,21 +70,40 @@ const QuestionGenerationAssessment = () => {
     loadData();
   }, [location.state, navigate]);
 
+  // ----------------------------
+  // Generate Questions (minimum 30)
+  // ----------------------------
   const generateQuestionsFromConcepts = async (conceptsData) => {
     setIsGeneratingQuestions(true);
     try {
+      // Step 1: Determine questions per concept
+      const minTotalQuestions = 30;
+      const questionsPerConcept = Math.ceil(minTotalQuestions / conceptsData.length);
+
+      // Step 2: Generate questions for each concept
       const questionPromises = conceptsData.map((concept) =>
         questionGenerationService.generateQuestionsForConcept(concept, {
-          questionCount: 5,
+          questionCount: questionsPerConcept,
           questionTypes: ['multiple_choice', 'true_false', 'short_answer'],
         })
       );
+
       const questionSets = await Promise.all(questionPromises);
-      const allQuestions = questionSets.flat();
+      let allQuestions = questionSets.flat();
 
-      const shuffledQuestions = questionGenerationService.shuffleQuestions(allQuestions);
-      const numberedQuestions = shuffledQuestions.map((q, idx) => ({ ...q, number: idx + 1 }));
+      // Step 3: Shuffle questions
+      allQuestions = questionGenerationService.shuffleQuestions(allQuestions);
 
+      // Step 4: Ensure at least 30 questions
+      while (allQuestions.length < minTotalQuestions) {
+        allQuestions = allQuestions.concat(allQuestions);
+      }
+      allQuestions = allQuestions.slice(0, Math.max(allQuestions.length, minTotalQuestions));
+
+      // Step 5: Number questions
+      const numberedQuestions = allQuestions.map((q, idx) => ({ ...q, number: idx + 1 }));
+
+      // Step 6: Prepare public structure
       const publicQuestions = numberedQuestions.map(
         ({ id, number, type, difficulty, question, context, options, conceptId, conceptName, createdAt }) => ({
           id, number, type, difficulty, question, context, options, conceptId, conceptName, createdAt
@@ -196,17 +215,17 @@ const QuestionGenerationAssessment = () => {
   };
 
   // ----------------------------
-  // Generate assessment results (informative)
+  // Generate assessment results
   // ----------------------------
   const generateAssessmentResults = (evals = evaluations) => {
-    const totalQuestions = questions.length;            // 🔹 Use all questions
+    const totalQuestions = questions.length;
     const totalAnswered = evals.length;
     let correctCount = 0;
     const conceptPerformance = {};
-  
+
     evals.forEach((evalResult) => {
       if (evalResult.isCorrect) correctCount++;
-  
+
       const conceptId = evalResult.conceptId;
       if (!conceptPerformance[conceptId]) {
         conceptPerformance[conceptId] = {
@@ -219,34 +238,34 @@ const QuestionGenerationAssessment = () => {
       conceptPerformance[conceptId].total++;
       if (evalResult.isCorrect) conceptPerformance[conceptId].correct++;
     });
-  
+
     Object.values(conceptPerformance).forEach((perf) => {
       perf.score = Math.round((perf.correct / perf.total) * 100);
     });
-  
+
     const weakAreas = [];
     const strongAreas = [];
     Object.values(conceptPerformance).forEach((perf) => {
       if (perf.score < 60) weakAreas.push({ topic: perf.conceptName, score: perf.score, correct: perf.correct, total: perf.total });
       else if (perf.score >= 80) strongAreas.push({ topic: perf.conceptName, score: perf.score, correct: perf.correct, total: perf.total });
     });
-  
+
     return {
-      totalQuestions,                                          // ✅ All questions
+      totalQuestions,
       correctAnswers: correctCount,
-      incorrectAnswers: totalQuestions - correctCount,         // ✅ Includes unanswered
+      incorrectAnswers: totalQuestions - correctCount,
       averageConfidence: Object.values(confidence).length
         ? (Object.values(confidence).reduce((a, b) => a + b, 0) / Object.values(confidence).length).toFixed(1)
         : 3.0,
       timeSpent: formatTime(sessionTime),
       overallScore: totalQuestions
-        ? Math.round((correctCount / totalQuestions) * 100)    // ✅ Based on all
+        ? Math.round((correctCount / totalQuestions) * 100)
         : 0,
       weakAreas,
       strongAreas,
       conceptPerformance,
     };
-  };  
+  };
 
   // ----------------------------
   // Retake / Continue

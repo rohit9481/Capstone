@@ -95,10 +95,15 @@ const FileUpload = () => {
       const analysis = await fileAnalysisService.analyzeFile(fileToProcess);
       console.log('Analysis result:', analysis);
 
-      // Step 2: Extract concepts
+      // Step 2: Extract concepts (await async extraction!)
       setProcessingStep('Extracting learning concepts...');
       console.log('Step 2: Extracting concepts...');
-      const concepts = conceptExtractionService.extractConcepts(analysis);
+      const concepts = await conceptExtractionService.extractConcepts(analysis);
+
+      if (!Array.isArray(concepts)) {
+        throw new Error('AI did not return an array of concepts');
+      }
+
       console.log('Extracted concepts:', concepts);
 
       // Step 3: Create learning pathway

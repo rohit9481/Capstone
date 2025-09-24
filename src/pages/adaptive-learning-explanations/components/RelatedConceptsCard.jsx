@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../../../components/AppIcon';
-import Image from '../../../components/AppImage';
 
 const RelatedConceptsCard = ({ 
   concepts = [],
@@ -15,7 +14,6 @@ const RelatedConceptsCard = ({
       difficulty: "Intermediate",
       estimatedTime: "6 min",
       completionStatus: "not_started",
-      image: "https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg?w=300&h=200&fit=crop",
       relationship: "opposite_process"
     },
     {
@@ -25,7 +23,6 @@ const RelatedConceptsCard = ({
       difficulty: "Advanced",
       estimatedTime: "10 min",
       completionStatus: "in_progress",
-      image: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=300&h=200&fit=crop",
       relationship: "prerequisite"
     },
     {
@@ -35,7 +32,6 @@ const RelatedConceptsCard = ({
       difficulty: "Beginner",
       estimatedTime: "4 min",
       completionStatus: "completed",
-      image: "https://images.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_960_720.jpg?w=300&h=200&fit=crop",
       relationship: "related_topic"
     },
     {
@@ -45,7 +41,6 @@ const RelatedConceptsCard = ({
       difficulty: "Beginner",
       estimatedTime: "5 min",
       completionStatus: "not_started",
-      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop",
       relationship: "related_topic"
     }
   ];
@@ -111,19 +106,11 @@ const RelatedConceptsCard = ({
             return (
               <div
                 key={concept?.id}
-                className="bg-card border rounded-lg overflow-hidden hover:shadow-card transition-all duration-200 cursor-pointer group"
+                className="bg-card border rounded-lg p-4 hover:shadow-card transition-all duration-200 cursor-pointer group"
                 onClick={() => onConceptSelect?.(concept)}
               >
-                {/* Image */}
-                <div className="aspect-video overflow-hidden">
-                  <Image 
-                    src={concept?.image} 
-                    alt={concept?.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
                 {/* Content */}
-                <div className="p-4">
+                <div>
                   {/* Header */}
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -162,10 +149,22 @@ const RelatedConceptsCard = ({
 
                   {/* Action Button */}
                   <div className="mt-4">
-                    <button className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors duration-200 group-hover:bg-primary group-hover:text-primary-foreground">
+                    <button
+                      className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-lg transition-transform duration-200
+                        ${
+                          concept?.completionStatus === 'completed'
+                            ? 'bg-success/10 text-success hover:bg-success/20 hover:scale-105'
+                            : concept?.completionStatus === 'in_progress'
+                            ? 'bg-warning/10 text-warning hover:bg-warning/20 hover:scale-105'
+                            : 'bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105'
+                        }`}
+                    >
                       <span className="text-sm font-medium">
-                        {concept?.completionStatus === 'completed' ? 'Review' : 
-                         concept?.completionStatus === 'in_progress' ? 'Continue' : 'Start Learning'}
+                        {concept?.completionStatus === 'completed'
+                          ? 'Review'
+                          : concept?.completionStatus === 'in_progress'
+                          ? 'Continue'
+                          : 'Start Learning'}
                       </span>
                       <Icon name="ArrowRight" size={14} />
                     </button>
